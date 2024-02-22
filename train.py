@@ -244,7 +244,7 @@ if __name__ == '__main__':
     os.makedirs(logdir, exist_ok=True)
     if args.do_train:
         writer = SummaryWriter(log_dir=logdir)
-        training_log = train(model, EPOCHS, DEVICE, writer)
+        training_log = train(train_loader, val_loader, test_loader, model, EPOCHS, DEVICE, writer)
         training_log.save(os.path.join(logdir, 'training_log.json'))
         writer.close()
         torch.save(model, f'./param/finetuned_{type(backbone).__name__}.pth')

@@ -194,19 +194,19 @@ if __name__ == '__main__':
     elif args.id == 1:
         backbone = models.resnet18(pretrained=False)
         if args.pretrained:
-            backbone.load_state_dict(torch.load('/gpfsnyu/home/xl3133/.cache/torch/hub/checkpoints/resnet18-f37072fd.pth'), False)
+            backbone = models.resnet18(weights="IMAGENET1K_V1")
     elif args.id == 2:
         backbone = models.vgg16(pretrained=False)
         if args.pretrained:
-            backbone.load_state_dict(torch.load('/gpfsnyu/home/xl3133/.cache/torch/hub/checkpoints/vgg16-397923af.pth'), False)
+            backbone = models.vgg16(weights="IMAGENET1K_V1")
     elif args.id == 3:
         backbone = models.densenet121(pretrained=False)
         if args.pretrained:
-            backbone.load_state_dict(torch.load('/gpfsnyu/home/xl3133/.cache/torch/hub/checkpoints/densenet121-a639ec97.pth'), False)
+            backbone = models.densenet121(weights="IMAGENET1K_V1")
     elif args.id == 4:
         backbone = models.shufflenet_v2_x1_0(pretrained=False)
         if args.pretrained:
-            backbone.load_state_dict(torch.load('/gpfsnyu/home/xl3133/.cache/torch/hub/checkpoints/shufflenetv2_x1-5666bf0f80.pth'), False)
+            backbone = models.shufflenet_v2_x1_0(weights="IMAGENET1K_V1")
     elif args.id == 5:
         from vit_pytorch import ViT
         backbone = ViT(
@@ -222,6 +222,7 @@ if __name__ == '__main__':
         )
     else:
         raise KeyError('Current backbone not supported...')
+    
     print('backbone pretrained:', args.pretrained)
     if args.id != 6:
         model = nn.Sequential(
@@ -229,6 +230,8 @@ if __name__ == '__main__':
             nn.Dropout(p=args.dropout),
             nn.Linear(1000, len(song_types))
         )
+    
+    
 
     logdir = './logs/' + str(date.today()) + '_' + type(backbone).__name__ + "_LR_" + str(LR) + "EPOCH_" + str(EPOCHS) + '/'
     os.makedirs(logdir, exist_ok=True)

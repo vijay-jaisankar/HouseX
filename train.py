@@ -220,11 +220,15 @@ if __name__ == '__main__':
             dropout = 0.1,
             emb_dropout = 0.1
         )
+    elif args.id == 6:
+        backbone = models.vgg19(pretrained=False)
+        if args.pretrained:
+            backbone = models.vgg19(weights="IMAGENET1K_V1")
     else:
         raise KeyError('Current backbone not supported...')
     
     print('backbone pretrained:', args.pretrained)
-    if args.id != 6:
+    if args.id != 7:
         model = nn.Sequential(
             backbone,
             nn.Dropout(p=args.dropout),

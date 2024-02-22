@@ -85,16 +85,7 @@ orig_set = MelSpectrogramDataset(*get_tensors())
 train_set, test_set = train_test_split(orig_set, test_size=0.1, random_mode=SEED)
 print(f"train/test set length: {len(train_set)}/{len(test_set)}")
 '''
-train_set = MelSpectrogramDataset(*get_tensors(mode='train'))
-val_set = MelSpectrogramDataset(*get_tensors(mode='val'))
-test_set = MelSpectrogramDataset(*get_tensors(mode='test'))
 
-train_loader = DataLoader(train_set, BATCH_SIZE, shuffle=True)
-val_loader = DataLoader(val_set, BATCH_SIZE, shuffle=True)
-test_loader = DataLoader(test_set, BATCH_SIZE, shuffle=True)
-
-print('dataset length:', len(train_set), len(val_set), len(test_set))
-print('dataloader length:', len(train_loader), len(val_loader), len(test_loader))
 
 
 def one_epoch(model, loader, mode, device=DEVICE, epoch_id=None):
@@ -130,7 +121,7 @@ def one_epoch(model, loader, mode, device=DEVICE, epoch_id=None):
             return run('test', device)
 
 
-def train(model, epochs=EPOCHS, device=DEVICE, writer=None, eval_first=True):
+def train(train_loader, val_loader, test_loader, model, epochs=EPOCHS, device=DEVICE, writer=None, eval_first=True):
     model = model.to(device)
     epoch = -1
     if eval_first:
@@ -181,6 +172,7 @@ if __name__ == '__main__':
     parser.add_argument('--metric', type=str, default='weighted')
     parser.add_argument('--pretrained', action='store_true', default=False)
     parser.add_argument('--do_train', action='store_true', default=False)
+    parser.add_argument('--data_dir', type=str, default='./melspecgrams/')
     args = parser.parse_args()
     print(args)
     print('Running on:', torch.cuda.get_device_name())
@@ -235,6 +227,17 @@ if __name__ == '__main__':
             nn.Linear(1000, len(song_types))
         )
     
+    # Construct the train, test, and val loaders
+    train_set = MelSpectrogramDataset(*get_tensors(args.data_dir, mode='train'))
+    val_set = MelSpectrogramDataset(*get_tensors(args.data_dir, mode='val'))
+    test_set = MelSpectrogramDataset(*get_tensors(args.data_dir, mode='test'))
+
+    train_loader = DataLoader(train_set, BATCH_SIZE, shuffle=True)
+    val_loader = DataLoader(val_set, BATCH_SIZE, shuffle=True)
+    test_loader = DataLoader(test_set, BATCH_SIZE, shuffle=True)
+
+    print('dataset length:', len(train_set), len(val_set), len(test_set))
+    print('dataloader length:', len(train_loader), len(val_loader), len(test_loader))
     
 
     logdir = './logs/' + str(date.today()) + '_' + type(backbone).__name__ + "_LR_" + str(LR) + "EPOCH_" + str(EPOCHS) + '/'

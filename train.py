@@ -251,7 +251,6 @@ if __name__ == '__main__':
         writer.close()
         torch.save(model, f'{logdir}/finetuned_{type(backbone).__name__}.pth')
     
-    tex = ''
     for mode in ['val', 'test']:
         print(f"{mode}:")
         model = torch.load(f'{logdir}/finetuned_{type(backbone).__name__}.pth')
@@ -268,7 +267,6 @@ if __name__ == '__main__':
         model = model.cpu()
 
         cm = confusion_matrix(y_test, y_pred)
-        # plt.figure(figsize=(20, 20))
         _ = ConfusionMatrixDisplay(cm, display_labels=('FH', 'BH', 'PH', 'MH')).plot()
         plt.title(type(backbone).__name__)
         plt.savefig(f'./logs/{type(backbone).__name__} - confusion matrix on the {mode} set.png', bbox_inches='tight')
@@ -277,12 +275,3 @@ if __name__ == '__main__':
         report = classification_report(y_test, y_pred, target_names=song_types, output_dict=True)
         pretty_report = json.dumps(report, indent=4)
         print("precision/recall/f1-score/support:", pretty_report)
-    
-        tex = tex + f"&{round(report['accuracy']*100, 2)}"
-        tex = tex + f"&{round(report['future house']['f1-score'], 2)}"
-        tex = tex + f"&{round(report['bass house']['f1-score'], 2)}"
-        tex = tex + f"&{round(report['progressive house']['f1-score'], 2)}"
-        tex = tex + f"&{round(report['melodic house']['f1-score'], 2)}"
-        tex = tex + f"&{round(report['weighted avg']['f1-score'], 2)}"
-    
-    print(tex)

@@ -20,6 +20,7 @@ import argparse
 from datetime import date
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 from logger import log
+import time 
 
 '''
 previous_training_logs = os.listdir('./logs/')
@@ -183,7 +184,7 @@ if __name__ == '__main__':
     if args.id == 0:
         backbone = models.mobilenet_v3_small(pretrained=False)
         if args.pretrained:
-            backbone.load_state_dict(torch.load('/gpfsnyu/home/xl3133/.cache/torch/hub/checkpoints/mobilenet_v3_small-047dcff4.pth'), False)
+            backbone.models.mobilenet_v3_small(weights="IMAGENET1K_V1")
     elif args.id == 1:
         backbone = models.resnet18(pretrained=False)
         if args.pretrained:
@@ -241,19 +242,19 @@ if __name__ == '__main__':
     print('dataloader length:', len(train_loader), len(val_loader), len(test_loader))
     
 
-    logdir = './logs/' + str(date.today()) + '_' + type(backbone).__name__ + "_LR_" + str(LR) + "EPOCH_" + str(EPOCHS) + '/'
+    logdir = './logs/' + str(date.today()) + '_' + str(time.time()) + '_' + type(backbone).__name__ + "_LR_" + str(LR) + "EPOCH_" + str(EPOCHS)
     os.makedirs(logdir, exist_ok=True)
     if args.do_train:
         writer = SummaryWriter(log_dir=logdir)
         training_log = train(train_loader, val_loader, test_loader, model, EPOCHS, DEVICE, writer)
         training_log.save(os.path.join(logdir, 'training_log.json'))
         writer.close()
-        torch.save(model, f'./param/finetuned_{type(backbone).__name__}.pth')
+        torch.save(model, f'{logdir}/finetuned_{type(backbone).__name__}.pth')
     
     tex = ''
     for mode in ['val', 'test']:
         print(f"{mode}:")
-        model = torch.load(f'./param/finetuned_{type(backbone).__name__}.pth')
+        model = torch.load(f'{logdir}/finetuned_{type(backbone).__name__}.pth')
         y_test, y_pred = [], []
         model = model.to(DEVICE)
         for images, labels in tqdm(test_loader if mode == 'test' else val_loader):

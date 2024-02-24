@@ -175,11 +175,17 @@ if __name__ == '__main__':
     parser.add_argument('--pretrained', action='store_true', default=False)
     parser.add_argument('--do_train', action='store_true', default=False)
     parser.add_argument('--data_dir', type=str, default='./melspecgrams/')
+    parser.add_argument('--batch_size', type=int, default=4)
+    parser.add_argument('--network_version', type=str, default='legacy') # "legacy" or "experimental"
     args = parser.parse_args()
+    # Parse args
     print(args)
     print('Running on:', torch.cuda.get_device_name())
     LR, EPOCHS = args.lr, args.epochs
+    BATCH_SIZE = args.batch_size
     DEVICE = torch.device('cuda:0' if args.id >= 0 else 'cpu')
+    
+    # Set backbone of the model
     backbone = None
     if args.id == 0:
         backbone = models.mobilenet_v3_small(pretrained=False)
@@ -220,14 +226,26 @@ if __name__ == '__main__':
             backbone = models.vgg19(weights="IMAGENET1K_V1")
     else:
         raise KeyError('Current backbone not supported...')
-    
+
     print('backbone pretrained:', args.pretrained)
+
+    # Construct the whole model on top of the backbone
     if args.id != 7:
-        model = nn.Sequential(
-            backbone,
-            nn.Dropout(p=args.dropout),
-            nn.Linear(1000, len(song_types))
-        )
+        if args.network_version == "legacy":
+            model = nn.Sequential(
+                backbone,
+                nn.Dropout(p=args.dropout),
+                nn.Linear(1000, len(song_types))
+            )
+        else:
+            model = nn.Sequential(
+                backbone,
+                nn.Dropout(p = args.dropout),
+                nn.Linear(1000, 256),
+                nn.BatchNorm1d(256),
+                nn.Dropout(p = args.dropout),
+                nn.Linear(256, len(song_types))
+            )
     
     # Construct the train, test, and val loaders
     train_set = MelSpectrogramDataset(*get_tensors(args.data_dir, mode='train'))

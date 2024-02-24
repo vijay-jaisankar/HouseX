@@ -240,27 +240,30 @@ if __name__ == '__main__':
                 nn.Linear(128, len(song_types))
             )
 
-    # Construct the transforms fot the dataset
-    if args.transforms_version == "legacy":
-        transform = transforms.Compose([
+    # Construct the transforms for the dataset
+    legacy_transform = transforms.Compose([
             transforms.Resize((96, 96)),
             transforms.ToTensor(),
             transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
         ])
+    
+    if args.transforms_version == "legacy":
+        train_transform = legacy_transform
     else:
-        transform = transforms.Compose([
+        train_transform = transforms.Compose([
             transforms.Resize((96, 96)),
             transforms.RandomPosterize(4, p = 0.25),
             transforms.ColorJitter(brightness = (0.15, 0.90)),
             transforms.RandomRotation(degrees = 15),
             transforms.ToTensor(),
-            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
         ])
     
     # Construct the train, test, and val loaders
-    train_set = MelSpectrogramDataset(*get_tensors(transform, args.data_dir, mode='train'))
-    val_set = MelSpectrogramDataset(*get_tensors(transform, args.data_dir, mode='val'))
-    test_set = MelSpectrogramDataset(*get_tensors(transform, args.data_dir, mode='test'))
+    # @note We apply the legacy transforms for the test ans validation datasets to aid in consistency of metrics' reporting 
+    train_set = MelSpectrogramDataset(*get_tensors(train_transform, args.data_dir, mode='train'))
+    val_set = MelSpectrogramDataset(*get_tensors(legacy_transform, args.data_dir, mode='val'))
+    test_set = MelSpectrogramDataset(*get_tensors(legacy_transform, args.data_dir, mode='test'))
 
     train_loader = DataLoader(train_set, BATCH_SIZE, shuffle=True)
     val_loader = DataLoader(val_set, BATCH_SIZE, shuffle=True)

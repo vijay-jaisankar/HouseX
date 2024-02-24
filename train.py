@@ -39,7 +39,7 @@ EPOCHS = 20
 LR = 2e-3
 BATCH_SIZE = 4
 data_path = "./"
-song_types = ['future house', 'bass house', 'progressive house', 'melodic house']
+song_types = ['future_house', 'bass_house', 'progressive_house', 'melodic_house']
 # print(genre_names)
 
 transform = transforms.Compose([
@@ -57,7 +57,7 @@ def get_tensors(path='./melspecgrams/', mode=None):
     spec_dir = os.path.join(path, mode)
     img_list = [ele for ele in os.listdir(spec_dir) if '.jpg' in ele]
     for img in img_list:
-        song_type = img[:img.index('-')]
+        song_type = img[:img.index('-')] # Expected file name example: bass_house_1.png
         # print(img, song_type)
         img_path = spec_dir + '/' + img
         img_tensor = transform(Image.open(img_path).convert('RGB'))

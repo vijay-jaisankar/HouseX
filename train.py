@@ -41,16 +41,8 @@ LR = 2e-3
 BATCH_SIZE = 4
 data_path = "./"
 song_types = ['future house', 'bass house', 'progressive house', 'melodic house']
-# print(genre_names)
 
-transform = transforms.Compose([
-    transforms.Resize((96, 96)),
-    transforms.ToTensor(),
-    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-])
-
-
-def get_tensors(path='./melspecgrams/', mode=None):
+def get_tensors(transform, path='./melspecgrams/', mode=None):
     # Collect data
     image_tensors = []
     label_tensors = []
@@ -177,6 +169,7 @@ if __name__ == '__main__':
     parser.add_argument('--data_dir', type=str, default='./melspecgrams/')
     parser.add_argument('--batch_size', type=int, default=4)
     parser.add_argument('--network_version', type=str, default='legacy') # "legacy" or "experimental"
+    parser.add_argument('--transforms_version', type=str, default='legacy') # "legacy" or "experimental"
     args = parser.parse_args()
     # Parse args
     print(args)
@@ -241,16 +234,34 @@ if __name__ == '__main__':
             model = nn.Sequential(
                 backbone,
                 nn.Dropout(p = args.dropout),
-                nn.Linear(1000, 256),
-                nn.BatchNorm1d(256),
+                nn.Linear(1000, 128),
+                nn.BatchNorm1d(128),
                 nn.Dropout(p = args.dropout),
-                nn.Linear(256, len(song_types))
+                nn.Linear(128, len(song_types))
             )
+
+    # Construct the transforms fot the dataset
+    if args.transforms_version == "legacy":
+        transform = transforms.Compose([
+            transforms.Resize((96, 96)),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+        ])
+    else:
+        transform = transforms.Compose([
+            transforms.Resize((96, 96)),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+            transforms.RandomPosterize(4, p = 0.25),
+            transforms.ColorJitter(brightness = (0.15, 0.90)),
+            transforms.RandomRotation(degrees = 15),
+            transforms.ToTensor()
+        ])
     
     # Construct the train, test, and val loaders
-    train_set = MelSpectrogramDataset(*get_tensors(args.data_dir, mode='train'))
-    val_set = MelSpectrogramDataset(*get_tensors(args.data_dir, mode='val'))
-    test_set = MelSpectrogramDataset(*get_tensors(args.data_dir, mode='test'))
+    train_set = MelSpectrogramDataset(*get_tensors(transform, args.data_dir, mode='train'))
+    val_set = MelSpectrogramDataset(*get_tensors(transform, args.data_dir, mode='val'))
+    test_set = MelSpectrogramDataset(*get_tensors(transform, args.data_dir, mode='test'))
 
     train_loader = DataLoader(train_set, BATCH_SIZE, shuffle=True)
     val_loader = DataLoader(val_set, BATCH_SIZE, shuffle=True)

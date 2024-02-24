@@ -233,11 +233,9 @@ if __name__ == '__main__':
         else:
             model = nn.Sequential(
                 backbone,
+                nn.BatchNorm1d(1000),
                 nn.Dropout(p = args.dropout),
-                nn.Linear(1000, 128),
-                nn.BatchNorm1d(128),
-                nn.Dropout(p = args.dropout),
-                nn.Linear(128, len(song_types))
+                nn.Linear(1000, len(song_types)),
             )
 
     # Construct the transforms for the dataset

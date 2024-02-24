@@ -233,7 +233,7 @@ if __name__ == '__main__':
         else:
             model = nn.Sequential(
                 backbone,
-                torch.nn.functional.ReLU(),
+                torch.nn.functional.relu(),
                 nn.BatchNorm1d(1000),
                 nn.Dropout(p = args.dropout),
                 nn.Linear(1000, len(song_types)),

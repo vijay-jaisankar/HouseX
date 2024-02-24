@@ -217,13 +217,17 @@ if __name__ == '__main__':
         backbone = models.vgg19(pretrained=False)
         if args.pretrained:
             backbone = models.vgg19(weights="IMAGENET1K_V1")
+    elif args.id == 7:
+        backbone = models.vgg19_bn(pretrained=False)
+        if args.pretrained:
+            backbone = models.vgg19_bn(weights="IMAGENET1K_V1")
     else:
         raise KeyError('Current backbone not supported...')
 
     print('backbone pretrained:', args.pretrained)
 
     # Construct the whole model on top of the backbone
-    if args.id != 7:
+    if args.id != 8:
         if args.network_version == "legacy":
             model = nn.Sequential(
                 backbone,
@@ -233,9 +237,9 @@ if __name__ == '__main__':
         else:
             model = nn.Sequential(
                 backbone,
-                torch.nn.functional.relu(),
+                nn.ReLU(),
                 nn.BatchNorm1d(1000),
-                nn.Dropout(p = args.dropout),
+                nn.Dropout(p = 0.5),
                 nn.Linear(1000, len(song_types)),
             )
 

@@ -239,7 +239,7 @@ if __name__ == '__main__':
                 backbone,
                 nn.ReLU(),
                 nn.BatchNorm1d(1000),
-                nn.Dropout(p = 0.5),
+                nn.Dropout(p = args.dropout),
                 nn.Linear(1000, len(song_types)),
             )
 

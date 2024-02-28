@@ -22,14 +22,8 @@ from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 from logger import log
 import time 
 
-'''
-previous_training_logs = os.listdir('./logs/')
-for f in previous_training_logs:
-    os.remove('./logs/'+f)
-'''
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-# DEVICE = torch.device("cpu")
 
 SEED = 0
 random.seed(SEED)
@@ -72,14 +66,6 @@ class MelSpectrogramDataset(Dataset):
     def __getitem__(self, idx):
         # input, target
         return self.images[idx], torch.tensor(self.labels[idx], dtype=torch.long)
-
-
-'''
-orig_set = MelSpectrogramDataset(*get_tensors())
-train_set, test_set = train_test_split(orig_set, test_size=0.1, random_mode=SEED)
-print(f"train/test set length: {len(train_set)}/{len(test_set)}")
-'''
-
 
 
 def one_epoch(model, loader, mode, device=DEVICE, epoch_id=None):
@@ -263,7 +249,7 @@ if __name__ == '__main__':
         ])
     
     # Construct the train, test, and val loaders
-    # @note We apply the legacy transforms for the test ans validation datasets to aid in consistency of metrics' reporting 
+    # @note We apply the legacy transforms for the test and validation datasets to aid in consistency of metrics' reporting 
     train_set = MelSpectrogramDataset(*get_tensors(train_transform, args.data_dir, mode='train'))
     val_set = MelSpectrogramDataset(*get_tensors(legacy_transform, args.data_dir, mode='val'))
     test_set = MelSpectrogramDataset(*get_tensors(legacy_transform, args.data_dir, mode='test'))

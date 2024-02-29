@@ -241,9 +241,8 @@ if __name__ == '__main__':
     else:
         train_transform = transforms.Compose([
             transforms.Resize((96, 96)),
-            transforms.RandomPosterize(4, p = 0.25),
-            transforms.ColorJitter(brightness = (0.15, 0.90)),
-            transforms.RandomRotation(degrees = 15),
+            transforms.RandomPosterize(2, p = 0.25),
+            transforms.ColorJitter(brightness = (0.50, 1.00)),
             transforms.ToTensor(),
             transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
         ])

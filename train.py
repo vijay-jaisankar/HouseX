@@ -207,13 +207,21 @@ if __name__ == '__main__':
         backbone = models.vgg19_bn(pretrained=False)
         if args.pretrained:
             backbone = models.vgg19_bn(weights="IMAGENET1K_V1")
+    elif args.id == 8:
+        backbone = models.vit_b_16(pretrained=False)
+        if args.pretrained:
+            backbone = models.vit_b_16(weights="IMAGENET1K_V1")
+    elif args.id == 9:
+        backbone = models.vit_b_32(pretrained=False)
+        if args.pretrained:
+            backbone = models.vit_b_32(weights="IMAGENET1K_V1")
     else:
         raise KeyError('Current backbone not supported...')
 
     print('backbone pretrained:', args.pretrained)
 
     # Construct the whole model on top of the backbone
-    if args.id != 8:
+    if args.id != 10:
         if args.network_version == "legacy":
             model = nn.Sequential(
                 backbone,

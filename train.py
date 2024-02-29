@@ -215,13 +215,17 @@ if __name__ == '__main__':
         backbone = models.resnet50(pretrained=False)
         if args.pretrained:
             backbone = models.resnet50(weights="IMAGENET1K_V1")
+    elif args.id == 10:
+        backbone = models.squeezenet1_1(pretrained=False)
+        if args.pretrained:
+            backbone = models.squeezenet1_1(weights="IMAGENET1K_V1")
     else:
         raise KeyError('Current backbone not supported...')
 
     print('backbone pretrained:', args.pretrained)
 
     # Construct the whole model on top of the backbone
-    if args.id != 10:
+    if args.id != 11:
         if args.network_version == "legacy":
             model = nn.Sequential(
                 backbone,

@@ -208,13 +208,13 @@ if __name__ == '__main__':
         if args.pretrained:
             backbone = models.vgg19_bn(weights="IMAGENET1K_V1")
     elif args.id == 8:
-        backbone = models.vit_b_16(pretrained=False)
+        backbone = models.resnet101(pretrained=False)
         if args.pretrained:
-            backbone = models.vit_b_16(weights="IMAGENET1K_V1")
+            backbone = models.resnet101(weights="IMAGENET1K_V1")
     elif args.id == 9:
-        backbone = models.vit_b_32(pretrained=False)
+        backbone = models.resnet50(pretrained=False)
         if args.pretrained:
-            backbone = models.vit_b_32(weights="IMAGENET1K_V1")
+            backbone = models.resnet50(weights="IMAGENET1K_V1")
     else:
         raise KeyError('Current backbone not supported...')
 

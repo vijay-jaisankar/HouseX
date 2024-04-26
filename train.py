@@ -169,7 +169,7 @@ if __name__ == '__main__':
     if args.id == 0:
         backbone = models.mobilenet_v3_small(pretrained=False)
         if args.pretrained:
-            backbone.models.mobilenet_v3_small(weights="IMAGENET1K_V1")
+            backbone = models.mobilenet_v3_small(weights="IMAGENET1K_V1")
     elif args.id == 1:
         backbone = models.resnet18(pretrained=False)
         if args.pretrained:
